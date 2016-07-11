@@ -6,6 +6,9 @@ env:
 python:
   - "2.7"
 
+services:
+  - elasticsearch
+
 install:
   # code below is taken from http://conda.pydata.org/docs/travis.html
   - wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
@@ -24,5 +27,8 @@ install:
   - pip install gensim
   - pip install sklearn
 
+before_script:
+  # make sure elasticsearch has time to start
+  - sleep 10
 
 script: python runtests.py
