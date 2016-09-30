@@ -562,3 +562,28 @@ class ES_Manager:
                     logger.set_context('hit', hit)
                     logger.exception('facts_error', msg='Problem with facts structure')
         return facts
+    
+    def merge_combined_query_with_query_dict(self, query_dict):
+        """ Merge the current query with the provided query
+            Merges the dictonaries entry-wise and uses conjunction in boolean queries, where needed. Alters the current query in place.
+        """
+        
+        try:
+            query_dict['main']['query']['bool']
+        except:
+            raise Exception('Incompatible queries.')
+        
+        if 'must' in query_dict['main']['query']['bool'] and query_dict['main']['query']['bool']['must']:
+            for constraint in query_dict['main']['query']['bool']['must']:
+                self._combined_query['main']['query']['bool']['must'].append(constraint)
+        if 'should' in query_dict['main']['query']['bool'] and query_dict['main']['query']['bool']['should']:
+            if len(query_dict['main']['query']['bool']['should']) > 1:
+                target_list = []
+                self._combined_query['main']['query']['bool']['must'].append({'or':target_list})
+            else:
+                target_list = self._combined_query['main']['query']['bool']['must']
+            for constraint in query_dict['main']['query']['bool']['must']:
+                target_list.append(constraint)
+        if 'must_not' in query_dict['main']['query']['bool'] and query_dict['main']['query']['bool']['must_not']:
+            for constraint in query_dict['main']['query']['bool']['must_not']:
+                self._combined_query['main']['query']['bool']['must_not'].append(constraint)
